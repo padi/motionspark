@@ -1,6 +1,7 @@
 class ListingsController < UITableViewController
   def viewDidLoad
     @listings = ['Condominium in Makati', 'Serendra', 'One McKinley Place']
+    navigationItem.title = 'Listings'
   end
 
   def shouldAutorotateToInterfaceOrientation(*)
@@ -17,8 +18,13 @@ class ListingsController < UITableViewController
   end
 
   def tableView(tableView, cellForRowAtIndexPath:path)
-    cell = tableView.dequeueReusableCellWithIdentifier("cell") || UITableViewCell.alloc.initWithStyle(UITableViewCellStyleDefault, reuseIdentifier:"cell")
+    cid = "cell"
+    # UITableViewCellStyleSubtitle - add addtl detailTextLabel property :)
+    cell = tableView.dequeueReusableCellWithIdentifier(cid) || UITableViewCell.alloc.initWithStyle(UITableViewCellStyleSubtitle, reuseIdentifier:cid)
     cell.textLabel.text = @listings[path.row]
+    cell.detailTextLabel.text = "by Mr. number #{path.row}"
+    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator
+
     cell
   end
 
