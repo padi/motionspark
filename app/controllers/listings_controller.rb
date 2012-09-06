@@ -24,6 +24,8 @@ class ListingsController < UITableViewController
 
   # when an item/row is selected
   def tableView tableView, didSelectRowAtIndexPath:path
+    tableView.deselectRowAtIndexPath path, animated: true
+
     p "Selected: #{@listings[path.row]}"
   end
 end
