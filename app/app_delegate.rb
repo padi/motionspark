@@ -24,16 +24,16 @@ class AppDelegate
 
   def left_pane_controller
     @left_pane_controller ||= begin
-      listings_controller = ListingsController.new
-      @left_pane_controller = UINavigationController.alloc.initWithRootViewController listings_controller
+      @listings_controller = ListingsController.new
+      @left_pane_controller = UINavigationController.alloc.initWithRootViewController @listings_controller
       @left_pane_controller
     end
   end
 
   def right_pane_controller
     @right_pane_controller ||= begin
-       blue_controller = BlueController.new
-       @right_pane_controller = UINavigationController.alloc.initWithRootViewController blue_controller
+       @blue_controller = BlueController.new
+       @right_pane_controller = UINavigationController.alloc.initWithRootViewController @blue_controller
        @right_pane_controller
      end
   end
