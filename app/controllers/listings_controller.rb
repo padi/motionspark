@@ -1,5 +1,7 @@
 class ListingsController < UITableViewController
   def viewDidLoad
+    # get the listings
+
     @listings = ['Condominium in Makati', 'Serendra', 'One McKinley Place']
     navigationItem.title = 'Listings'
   end
