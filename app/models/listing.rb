@@ -1,6 +1,6 @@
 class Listing
   # PROPERTIES = [:id, :list_price :public_remarks, :state, :city, :street_name, :list_office_phone, :list_office_email, :postal_code]
-  PROPERTIES = [:id]
+  PROPERTIES = [:ListingId, :PublicRemarks, :ListAgentFirstName, :ListAgentLastName]
   PROPERTIES.each { |prop|
     attr_accessor prop
   }
@@ -8,6 +8,7 @@ class Listing
   def initialize hash={}
     hash.each { |key, value|
       if PROPERTIES.member? key.to_sym
+        puts "assigning... #{key}: #{value} \n"
         self.send key.to_s + "=", value
       end
     }
