@@ -24,7 +24,7 @@ class ListingsController < UITableViewController
     # UITableViewCellStyleSubtitle - add addtl detailTextLabel property :)
     cell = tableView.dequeueReusableCellWithIdentifier(cid) || UITableViewCell.alloc.initWithStyle(UITableViewCellStyleSubtitle, reuseIdentifier:cid)
     cell.textLabel.text = @listings[path.row]
-    cell.detailTextLabel.text = "by Mr. number #{path.row}"
+    cell.detailTextLabel.text = "listing id: #{path.row}"
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator
 
     cell
@@ -32,8 +32,13 @@ class ListingsController < UITableViewController
 
   # when an item/row is selected
   def tableView tableView, didSelectRowAtIndexPath:path
-    tableView.deselectRowAtIndexPath path, animated: true
 
-    p "Selected: #{@listings[path.row]}"
+    # TODO: update fields in the information/right pane
+    ListingInformationController.update_info path.row do |s|
+      tableView.deselectRowAtIndexPath path, animated: true
+
+
+      p 'someting'
+    end
   end
 end

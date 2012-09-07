@@ -9,4 +9,5 @@ Motion::Project::App.setup do |app|
   app.name = 'ipad'
   app.device_family = :ipad
   app.interface_orientations = [:landscape_left, :landscape_right]
+  app.files_dependencies 'app/app_delegate.rb' => 'app/object.rb'
 end
