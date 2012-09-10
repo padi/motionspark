@@ -13,4 +13,17 @@ class Listing
       end
     }
   end
+
+  def self.all
+    response = BW::JSON.parse(SparkMock.get '/listings')
+    listings = []
+    if response["D"]["Success"]
+      response["D"]["Results"].each do |listing_data|
+        listing = Listing.new listing_data["StandardFields"]
+        listings << listing
+      end
+    end
+
+    listings
+  end
 end

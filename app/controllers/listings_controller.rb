@@ -6,14 +6,7 @@ class ListingsController < UITableViewController
     # - puts the :Results value in the json response (from /listings) into @listings
     #   - otherwise @listings = []
 
-    response = BW::JSON.parse(SparkMock.get '/listings')
-    @listings = []
-    if response["D"]["Success"]
-      response["D"]["Results"].each do |listing_data|
-        listing = Listing.new listing_data["StandardFields"]
-        @listings << listing
-      end
-    end
+    @listings = Listing.all
 
     navigationItem.title = 'Listings'
   end
