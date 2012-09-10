@@ -51,8 +51,7 @@ class ListingsController < UITableViewController
     end
   end
 
-  # TODO: custom change in height
-  # def tableView(tableView, heightForRowAtIndexPath: path)
-  #   path.row * 20
-  # end
+  def tableView(tableView, heightForRowAtIndexPath: path)
+    60
+  end
 end

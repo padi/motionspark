@@ -13,7 +13,7 @@ Teacup::Stylesheet.new :listing_info do
     text: 'Listing ID:',
     sizeToFit: true,
     textColor: UIColor.whiteColor,
-    backgroundColor: UIColor.redColor,
+    backgroundColor: UIColor.blackColor,
     landscape: {
       width: 360
     }
@@ -21,7 +21,6 @@ Teacup::Stylesheet.new :listing_info do
   style :public_remarks, extends: :listing_id,
     top: 30,
     text: 'Public Remarks:'
-
 
   style :agent_name, extends: :listing_id,
     top: 50,
