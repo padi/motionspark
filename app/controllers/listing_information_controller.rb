@@ -1,41 +1,14 @@
 class ListingInformationController < UIViewController
-  def viewDidLoad
-    @listing_id = UILabel.new
-    @listing_id.frame = [[10, 10], [200, 30]]
-    @listing_id.text = 'Listing ID:'
-    @listing_id.sizeToFit
-    @listing_id.backgroundColor = UIColor.redColor
-    @listing_id.textColor = UIColor.whiteColor
-    view.addSubview(@listing_id)
+  stylesheet :listing_info
 
-    @public_remarks = UILabel.new
-    @public_remarks.frame = [[10, 50], [200, 30]]
-    @public_remarks.text = 'Remarks:'
-    @public_remarks.sizeToFit
-    @public_remarks.backgroundColor = UIColor.redColor
-    @public_remarks.textColor = UIColor.whiteColor
-    view.addSubview(@public_remarks)
-
-    @agent_name = UILabel.new
-    @agent_name.frame = [[10, 90], [200, 30]]
-    @agent_name.text = 'Agent Name:'
-    @agent_name.sizeToFit
-    @agent_name.backgroundColor = UIColor.redColor
-    @agent_name.textColor = UIColor.whiteColor
-    view.addSubview(@agent_name)
-
-    # @search = UITextField.new
-    # @search.frame = [[10, 70], [200, 30]]
-    # @search.placeholder = 'name'
-    # @search.textColor = UIColor.redColor
-    # view.addSubview(@search)
-
-    view.backgroundColor = UIColor.blackColor
-    navigationItem.title = 'Information'
+  layout :root do
+    @listing_id = subview UILabel, :listing_id
+    @public_remarks = subview UILabel, :public_remarks
+    @agent_name = subview UILabel, :agent_name
   end
 
-  def shouldAutorotateToInterfaceOrientation(o)
-    true
+  def shouldAutorotateToInterfaceOrientation(orientation)
+    autorotateToOrientation(orientation)
   end
 
   def self.update_info(listing, &block)
