@@ -1,14 +1,31 @@
 class ListingInformationController < UIViewController
   def viewDidLoad
-    @listing_id_label = UILabel.new
-    @listing_id_label.frame = [[10, 10], [200, 50]]
-    @listing_id_label.text = 'listing id: '
-    @listing_id_label.backgroundColor = UIColor.blackColor
-    @listing_id_label.textColor = UIColor.whiteColor
-    view.addSubview(@listing_id_label)
+    @listing_id = UILabel.new
+    @listing_id.frame = [[10, 10], [200, 30]]
+    @listing_id.text = 'Listing ID:'
+    @listing_id.sizeToFit
+    @listing_id.backgroundColor = UIColor.redColor
+    @listing_id.textColor = UIColor.whiteColor
+    view.addSubview(@listing_id)
+
+    @public_remarks = UILabel.new
+    @public_remarks.frame = [[10, 50], [200, 30]]
+    @public_remarks.text = 'Remarks:'
+    @public_remarks.sizeToFit
+    @public_remarks.backgroundColor = UIColor.redColor
+    @public_remarks.textColor = UIColor.whiteColor
+    view.addSubview(@public_remarks)
+
+    @agent_name = UILabel.new
+    @agent_name.frame = [[10, 90], [200, 30]]
+    @agent_name.text = 'Agent Name:'
+    @agent_name.sizeToFit
+    @agent_name.backgroundColor = UIColor.redColor
+    @agent_name.textColor = UIColor.whiteColor
+    view.addSubview(@agent_name)
 
     # @search = UITextField.new
-    # @search.frame = [[10, 70], [200, 50]]
+    # @search.frame = [[10, 70], [200, 30]]
     # @search.placeholder = 'name'
     # @search.textColor = UIColor.redColor
     # view.addSubview(@search)
@@ -21,16 +38,19 @@ class ListingInformationController < UIViewController
     true
   end
 
-  def self.update_info(listing_id, &block)
+  def self.update_info(listing, &block)
     # TODO:
     # - get first the appropriate listing based on id
     # - update the view with the information given in by the found listing
 
-    puts "Listing.update_info with #{listing_id} parameter (displays path.row for now)"
+    information_controller = UIApplication.sharedApplication.delegate.ivget('@listing_information_controller')
 
-    app_delegate = UIApplication.sharedApplication.delegate
-    information_controller = app_delegate.ivget('@listing_information_controller')
-    information_controller.ivget('@listing_id_label').text = "listing id: #{listing_id}"
+    information_controller.ivget('@listing_id').text = "Listing ID: #{listing.ListingId}"
+    information_controller.ivget('@listing_id').sizeToFit
+    information_controller.ivget('@public_remarks').text = "Public Remarks: #{listing.PublicRemarks}"
+    information_controller.ivget('@public_remarks').sizeToFit
+    information_controller.ivget('@agent_name').text = "Agent Name: #{listing.ListAgentFirstName} #{listing.ListAgentLastName}"
+    information_controller.ivget('@agent_name').sizeToFit
     block.call nil
   end
 end

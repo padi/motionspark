@@ -52,10 +52,9 @@ class ListingsController < UITableViewController
   # when an item/row is selected
   def tableView tableView, didSelectRowAtIndexPath:path
     # TODO: update fields in the information/right pane
-    ListingInformationController.update_info path.row do |s|
+    listing = @listings[path.row]
+    ListingInformationController.update_info listing do |s|
       tableView.deselectRowAtIndexPath path, animated: true
-
-      p 'someting'
     end
   end
 
