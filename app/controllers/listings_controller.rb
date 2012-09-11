@@ -1,24 +1,26 @@
-class ListingsController < UITableViewController
+class ListingsController < UIViewController
   def viewDidLoad
-    # TODO:
-    # - get the listings from the actual model
-    # - parse the response using BW::JSON.parse
-    # - puts the :Results value in the json response (from /listings) into @listings
-    #   - otherwise @listings = []
-
     @listings = Listing.all
-
     navigationItem.title = 'Listings'
+
+    # search container for a search bar and a search button
+    @search_container = UISearchBar.alloc.initWithFrame [[0, 0], [320, 30]]
+    @search_container.backgroundColor = UIColor.lightGrayColor
+    @search_container.placeholder = 'Search...'
+    view.addSubview @search_container
+
+    table_frame = [[0, @search_container.frame.size.height],
+                  [self.view.bounds.size.width, self.view.bounds.size.height - @search_container.frame.size.height - self.navigationController.navigationBar.frame.size.height]]
+    @table_view = UITableView.alloc.initWithFrame(table_frame, style:UITableViewStylePlain)
+    view.addSubview @table_view
+
+    @table_view.delegate = self
+    @table_view.dataSource = self
   end
 
   def shouldAutorotateToInterfaceOrientation(*)
     true
   end
-
-  # TODO: search docs for this
-  #def numberOfSectionsInTableView tableView
-    #1
-  #end
 
   def tableView tableView, numberOfRowsInSection:section
     @listings.length
@@ -44,7 +46,6 @@ class ListingsController < UITableViewController
 
   # when an item/row is selected
   def tableView tableView, didSelectRowAtIndexPath:path
-    # TODO: update fields in the information/right pane
     listing = @listings[path.row]
     ListingInformationController.update_info listing do |s|
       tableView.deselectRowAtIndexPath path, animated: true

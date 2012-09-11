@@ -1,5 +1,4 @@
 class AppDelegate
-
   def application(application, didFinishLaunchingWithOptions:launchOptions)
     window.makeKeyAndVisible
     true

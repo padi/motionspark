@@ -5,7 +5,8 @@ Teacup.handler UILabel, :sizeToFit { |label, apply|
 
 Teacup::Stylesheet.new :listing_info do
   style :root,
-    landscape: true
+    landscape: true,
+    backgroundColor: UIColor.blackColor
 
   style :listing_id,
     left: 10,
@@ -22,7 +23,11 @@ Teacup::Stylesheet.new :listing_info do
     top: 30,
     text: 'Public Remarks:'
 
-  style :agent_name, extends: :listing_id,
+  style :list_agent_first_name, extends: :listing_id,
     top: 50,
-    text: 'Agent Name:'
+    text: 'List Agent First Name:'
+
+  style :list_agent_last_name, extends: :listing_id,
+    top: 70,
+    text: 'List Agent Last Name:'
 end

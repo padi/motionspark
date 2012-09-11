@@ -1,15 +1,38 @@
 class ListingInformationController < UIViewController
-  attr_accessor :listing_id, :public_remarks, :agent_name
+  include BW::KVO
+
+  LABELS = %w(listing_id public_remarks list_agent_first_name list_agent_last_name)
+  LABELS.each { |prop|
+    attr_accessor prop
+  }
+  attr_accessor :listing
 
   stylesheet :listing_info
 
   layout :root do
-    self.listing_id = subview UILabel, :listing_id
-    self.public_remarks = subview UILabel, :public_remarks
-    self.agent_name = subview UILabel, :agent_name
+    LABELS.each { |prop|
+      self.send("#{prop}=", subview(UILabel, prop.to_sym))
+    }
 
-    view.backgroundColor = UIColor.blackColor
     navigationItem.title = 'Information'
+
+    self.listing = Listing.new
+
+    Listing::PROPERTIES.map(&:to_s).each { |prop|
+      puts prop
+      observe(self.listing, prop) do |old_value, new_value|
+        # puts "replacing #{prop} from #{old_value} to #{new_value}"
+
+        property_label = UIApplication.sharedApplication.delegate.ivget("@listing_information_controller").ivget "@#{prop.underscore}"
+        if property_label
+          description = prop.split(/(?=[A-Z])/).join(" ")
+          property_label.text = "#{description}: #{new_value}"
+          property_label.sizeToFit
+        else
+          puts "@#{prop.underscore} does not exist... yet. :)"
+        end
+      end
+    }
   end
 
   def shouldAutorotateToInterfaceOrientation(orientation)
@@ -19,14 +42,10 @@ class ListingInformationController < UIViewController
   def self.update_info(listing, &block)
     information_controller = UIApplication.sharedApplication.delegate.ivget('@listing_information_controller')
 
-    # TODO: KVO should be applied here
-    information_controller.listing_id.text = "Listing ID: #{listing.ListingId}"
-    information_controller.public_remarks.text = "Public Remarks: #{listing.PublicRemarks}"
-    information_controller.agent_name.text = "Agent Name: #{listing.ListAgentFirstName} #{listing.ListAgentLastName}"
-    
-    information_controller.listing_id.sizeToFit
-    information_controller.public_remarks.sizeToFit
-    information_controller.agent_name.sizeToFit
+    Listing::PROPERTIES.map(&:to_s).each { |prop|
+      information_controller.listing.send("#{prop}=", listing.send("#{prop}"))
+    }
+
     block.call nil
   end
 end
