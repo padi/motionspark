@@ -1,6 +1,6 @@
 class Listing
   # PROPERTIES = [:id, :list_price :public_remarks, :state, :city, :street_name, :list_office_phone, :list_office_email, :postal_code]
-  PROPERTIES = [:ListingId, :PublicRemarks, :ListAgentFirstName, :ListAgentLastName, :ListPrice, :ListAgentEmail]
+  PROPERTIES = [:ListingId, :PublicRemarks, :ListAgentFirstName, :ListAgentLastName, :ListPrice, :ListAgentEmail, :City]
   PROPERTIES.each { |prop|
     attr_accessor prop
   }

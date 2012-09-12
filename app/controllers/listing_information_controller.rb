@@ -1,7 +1,7 @@
 class ListingInformationController < UIViewController
   include BW::KVO
 
-  LABELS = %w(listing_id public_remarks list_agent_first_name list_agent_last_name list_price list_agent_email)
+  LABELS = %w(listing_id public_remarks list_agent_first_name list_agent_last_name list_price list_agent_email city)
   LABELS.each { |prop|
     attr_accessor prop
   }

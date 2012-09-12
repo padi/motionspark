@@ -40,4 +40,8 @@ Teacup::Stylesheet.new :listing_info do
   style :list_agent_email, extends: :listing_id,
     top: 110,
     text: 'List Agent Email:'
+
+  style :city, extends: :listing_id,
+    top: 130,
+    text: 'City:'
 end
