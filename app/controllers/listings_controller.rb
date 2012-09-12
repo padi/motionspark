@@ -14,6 +14,7 @@ class ListingsController < UIViewController
     @table_view = UITableView.alloc.initWithFrame(table_frame, style:UITableViewStylePlain)
     view.addSubview @table_view
 
+    @search_container.delegate = self
     @table_view.delegate = self
     @table_view.dataSource = self
   end
@@ -21,6 +22,8 @@ class ListingsController < UIViewController
   def shouldAutorotateToInterfaceOrientation(*)
     true
   end
+
+  # UITableView related methods
 
   def tableView tableView, numberOfRowsInSection:section
     @listings.length
@@ -54,5 +57,16 @@ class ListingsController < UIViewController
 
   def tableView(tableView, heightForRowAtIndexPath: path)
     60
+  end
+
+  # search related methods (UISearchBar and UISearchBarDelegate)
+
+  def searchBar search_bar, textDidChange: text
+    @listings = (text.length == 0) ? Listing.all : Listing.search(text)
+    @table_view.reloadData
+  end
+
+  def searchBarSearchButtonClicked search_bar
+    puts "searchBarSearchButtonClicked: #{search_bar.text}"
   end
 end

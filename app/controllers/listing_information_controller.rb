@@ -1,7 +1,7 @@
 class ListingInformationController < UIViewController
   include BW::KVO
 
-  LABELS = %w(listing_id public_remarks list_agent_first_name list_agent_last_name)
+  LABELS = %w(listing_id public_remarks list_agent_first_name list_agent_last_name list_price list_agent_email city)
   LABELS.each { |prop|
     attr_accessor prop
   }
@@ -21,7 +21,6 @@ class ListingInformationController < UIViewController
     Listing::PROPERTIES.map(&:to_s).each { |prop|
       puts prop
       observe(self.listing, prop) do |old_value, new_value|
-        # puts "replacing #{prop} from #{old_value} to #{new_value}"
 
         property_label = UIApplication.sharedApplication.delegate.ivget("@listing_information_controller").ivget "@#{prop.underscore}"
         if property_label

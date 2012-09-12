@@ -83,7 +83,7 @@ MOCK_RESPONSES = {
           ],
           "Permissions": {
             "Editable": false,
-            "EditableSettings": [] 
+            "EditableSettings": []
           },
           "Settings": {
             "SearchRestrictions": {
@@ -104,7 +104,7 @@ MOCK_RESPONSES = {
                 "ResourceUri": "/v1/account/20080624194124915376000000/qualifications/expertise/200911120813598729000000",
                 "Name": "Condo specialist",
                 "Dates": "2005-"
-            }] 
+            }]
           }
         }]
       }
@@ -127,19 +127,19 @@ MOCK_RESPONSES = {
             {"Name": "MLS E-mail", "Value": "MLS E-mail"}
           ],
           "Phones": [
-            {"Name": "Home", "Value": "Home"}, 
-            {"Name": "Office", "Value": "Office"}, 
-            {"Name": "Fax", "Value": "Fax"}, 
-            {"Name": "Mobile", "Value": "Mobile"}, 
-            {"Name": "Pager", "Value": "Pager"}, 
-            {"Name": "Other Phone", "Value": "Other Phone"}, 
-            {"Name": "Voice", "Value": "Voice"}, 
-            {"Name": "Direct", "Value": "Direct"}, 
-            {"Name": "Toll-Free", "Value": "Toll-Free"}, 
-            {"Name": "2nd Home", "Value": "2nd Home"}, 
-            {"Name": "Primary", "Value": "Primary"}, 
-            {"Name": "2nd Fax", "Value": "2nd Fax"}, 
-            {"Name": "Modem", "Value": "Modem"}, 
+            {"Name": "Home", "Value": "Home"},
+            {"Name": "Office", "Value": "Office"},
+            {"Name": "Fax", "Value": "Fax"},
+            {"Name": "Mobile", "Value": "Mobile"},
+            {"Name": "Pager", "Value": "Pager"},
+            {"Name": "Other Phone", "Value": "Other Phone"},
+            {"Name": "Voice", "Value": "Voice"},
+            {"Name": "Direct", "Value": "Direct"},
+            {"Name": "Toll-Free", "Value": "Toll-Free"},
+            {"Name": "2nd Home", "Value": "2nd Home"},
+            {"Name": "Primary", "Value": "Primary"},
+            {"Name": "2nd Fax", "Value": "2nd Fax"},
+            {"Name": "Modem", "Value": "Modem"},
             {"Name": "Office Fax", "Value": "Office Fax"},
             {"Name": "2nd Mobile", "Value": "2nd Mobile"},
             {"Name": "2nd Pager", "Value": "2nd Pager"}
@@ -303,7 +303,7 @@ MOCK_RESPONSES = {
             "PrimaryEmail": "tester@testing.com",
             "Tags": ["Recent Buyers"]
           },
-  
+
         ]
       }
     }'
@@ -441,7 +441,7 @@ MOCK_RESPONSES = {
             "ResourceUri": "/vX/listingcarts/20100912153422758914000000",
             "Id": "20100912153422758914000000",
             "Name": "My Listing Cart",
-            "ListingCount": 10 
+            "ListingCount": 10
           },
           {
             "ResourceUri": "/vX/listingcarts/20110112133422752751000000",
@@ -495,8 +495,8 @@ MOCK_RESPONSES = {
               "ListingId": "10-1796",
               "PropertyType": "A ",
               "PropertySubType": "SF",
-              "ListPrice": 1079900,
-              "StreetNumber": "611",
+              "ListPrice": 1009999,
+              "StreetNumber": "334",
               "StreetDirPrefix": null,
               "StreetName": "8th",
               "StreetSuffix": "St",
@@ -586,8 +586,8 @@ MOCK_RESPONSES = {
               "ListingId": "10-1797",
               "PropertyType": "A ",
               "PropertySubType": "SF",
-              "ListPrice": 1079900,
-              "StreetNumber": "611",
+              "ListPrice": 1099978,
+              "StreetNumber": "212",
               "StreetDirPrefix": null,
               "StreetName": "8th",
               "StreetSuffix": "St",
@@ -677,8 +677,8 @@ MOCK_RESPONSES = {
               "ListingId": "10-1798",
               "PropertyType": "A ",
               "PropertySubType": "SF",
-              "ListPrice": 1079900,
-              "StreetNumber": "611",
+              "ListPrice": 2472334,
+              "StreetNumber": "111",
               "StreetDirPrefix": null,
               "StreetName": "8th",
               "StreetSuffix": "St",
@@ -969,8 +969,8 @@ MOCK_RESPONSES = {
                 "LogoUri":"Acme Realty",
                 "Type":"Text"
               }
-            }   
-          }   
+            }
+          }
         ],
         "Pagination": {
           "TotalRows": 78,
@@ -1084,7 +1084,7 @@ MOCK_RESPONSES = {
       "D": {
         "Results": [{
           "Id":   "20110003930012897000000000",
-          "Type": "Rented", 
+          "Type": "Rented",
           "StartDate": "2011-03-14",
           "EndDate": "2011-03-15"
         }],
@@ -1099,17 +1099,17 @@ MOCK_RESPONSES = {
         "Results": [
           {
             "AdditionalInfo": [
-              {"Hosted By": "Mr. Agent"}, 
-              {"Hosted Phone": "111-222-3333"}, 
+              {"Hosted By": "Mr. Agent"},
+              {"Hosted Phone": "111-222-3333"},
               {"Area": "North Fargo"}
-            ], 
-            "Comments": "First listing tour", 
-            "Date": "05/14/2012", 
-            "Id": "20120509194700383011000000", 
-            "ResourceUri": "/vX/listings/20000612234839640464000000/tourofhomes/20120509194700383011000000", 
-            "StartTime": "12:00 PM", 
+            ],
+            "Comments": "First listing tour",
+            "Date": "05/14/2012",
+            "Id": "20120509194700383011000000",
+            "ResourceUri": "/vX/listings/20000612234839640464000000/tourofhomes/20120509194700383011000000",
+            "StartTime": "12:00 PM",
             "EndTime": "5:00 PM"
-          }        
+          }
         ]
       }
     }'
@@ -1157,13 +1157,13 @@ MOCK_RESPONSES = {
     }'
   },
   '/marketstatistics/absorpotion' => {
-    get: '{ 
+    get: '{
       "Dates": ["11/1/2010","10/1/2010","9/1/2010","8/1/2010","7/1/2010", "6/1/2010","5/1/2010","4/1/2010","3/1/2010","2/1/2010", "1/1/2010","12/1/2009"],
       "AbsorptionRate": [6.11,5.14,4.51,5.15,5.33,6.01,4.92,4.98,5.01,5.33,4.77,4.1]
     }'
   },
   '/marketstatistics/inventory' => {
-    get: '{ 
+    get: '{
       "Dates": ["11/1/2010","10/1/2010","9/1/2010","8/1/2010","7/1/2010", "6/1/2010","5/1/2010","4/1/2010","3/1/2010","2/1/2010", "1/1/2010","12/1/2009"],
       "ActiveListings": [10000,10005,10010,10015,9998,10221,10125,10222,10315,10008,10009,10001],
       "NewListings":    [100,101,105,109,99,100,105,102,102,98,95,92],
@@ -1172,7 +1172,7 @@ MOCK_RESPONSES = {
     }'
   },
   '/marketstatistics/price' => {
-      get: '{ 
+      get: '{
       "Dates":                  ["11/1/2010","10/1/2010","9/1/2010","8/1/2010","7/1/2010",
                                  "6/1/2010","5/1/2010","4/1/2010","3/1/2010","2/1/2010",
                                  "1/1/2010","12/1/2009"],
@@ -1189,7 +1189,7 @@ MOCK_RESPONSES = {
     }'
   },
   '/marketstatistics/ratio' => {
-      get: '{ 
+      get: '{
       "Dates":                        ["11/1/2010","10/1/2010","9/1/2010","8/1/2010","7/1/2010",
                                        "6/1/2010","5/1/2010","4/1/2010","3/1/2010","2/1/2010",
                                        "1/1/2010","12/1/2009"],
@@ -1198,7 +1198,7 @@ MOCK_RESPONSES = {
     }'
   },
   '/marketstatistics/dom' => {
-      get: '{ 
+      get: '{
       "Dates":       ["11/1/2010","10/1/2010","9/1/2010","8/1/2010","7/1/2010",
                       "6/1/2010","5/1/2010","4/1/2010","3/1/2010","2/1/2010",
                       "1/1/2010","12/1/2009"],
@@ -1207,7 +1207,7 @@ MOCK_RESPONSES = {
     }'
   },
   '/marketstatistics/volume' => {
-      get: '{ 
+      get: '{
       "Dates":["11/1/2010","10/1/2010","9/1/2010","8/1/2010","7/1/2010",
         "6/1/2010","5/1/2010","4/1/2010","3/1/2010","2/1/2010",
         "1/1/2010","12/1/2009"],
@@ -2817,7 +2817,7 @@ MOCK_RESPONSES = {
   eos
   },
 
-  "/system/languages" => { 
+  "/system/languages" => {
     get: <<-eos
       {
         "D": {
