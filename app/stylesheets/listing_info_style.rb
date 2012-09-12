@@ -8,13 +8,15 @@ Teacup::Stylesheet.new :listing_info do
     landscape: true,
     backgroundColor: UIColor.blackColor
 
+  style UILabel,
+    sizeToFit: true,
+    textColor: UIColor.whiteColor,
+    backgroundColor: UIColor.blackColor
+
   style :listing_id,
     left: 10,
     top: 10,
     text: 'Listing ID:',
-    sizeToFit: true,
-    textColor: UIColor.whiteColor,
-    backgroundColor: UIColor.blackColor,
     landscape: {
       width: 360
     }
@@ -30,4 +32,12 @@ Teacup::Stylesheet.new :listing_info do
   style :list_agent_last_name, extends: :listing_id,
     top: 70,
     text: 'List Agent Last Name:'
+
+  style :list_price, extends: :listing_id,
+    top: 90,
+    text: 'List Price:'
+
+  style :list_agent_email, extends: :listing_id,
+    top: 110,
+    text: 'List Agent Email:'
 end
