@@ -93,7 +93,7 @@ module SparkMotion
       return # so that access_code will not be printed in output
     end
 
-    def authorize
+    def authorize &block
       # do a post request containing code..
       # expect values to be assigned to ACCESS_KEYS attributes
 
@@ -125,6 +125,8 @@ module SparkMotion
           puts "SparkMotion: [status code 200] - Client is now authorized to make requests."
 
           self.authorized = true
+
+          block.call if block && block.respond_to?(:call)
         else
           # usual response:
           # {"error_description":"The access grant you supplied is invalid","error":"invalid_grant"}
@@ -133,7 +135,7 @@ module SparkMotion
           # - there should be a fallback strategy
           # - try to authorize again? (without going through a loop)
           # - SparkMotion::Error module
-          puts "SparkMotion: ERROR [status code #{response.status_code}] - #{response_body["error_description"]}"
+          puts "SparkMotion: ERROR [status code #{response.status_code}] - Authorization Unsuccessful - response body: #{response_body["error_description"]}"
           self.authorized = false
         end
       end
@@ -158,28 +160,37 @@ module SparkMotion
     #
     # for GET request https://developers.sparkapi.com/v1/listings?_limit=1&_filter=PropertyType%20Eq%20'A'
     # client.get '/listings', {:payload => {:_limit => 1, :_filter => "PropertyType Eq 'A'"}}
-    def get spark_url, options={} # Future TODO: post, put
-      # authorize if not authorized
-      headers = {
-        :"User-Agent" => "MotionSpark RubyMotion Sample App",
-        :"X-SparkApi-User-Agent" => "MotionSpark RubyMotion Sample App",
-        :"Authorization" => "OAuth #{self.access_token}"
+    def get(spark_url, options={}, &block) # Future TODO: post, put
+      request = lambda {
+        headers = {
+          :"User-Agent" => "MotionSpark RubyMotion Sample App",
+          :"X-SparkApi-User-Agent" => "MotionSpark RubyMotion Sample App",
+          :"Authorization" => "OAuth #{self.access_token}"
+        }
+
+        opts={}
+        opts.merge!(options)
+        opts.merge!({:headers => headers})
+
+        # https://<spark_endpoint>/<api version>/<spark resource>
+        complete_url = self.endpoint + "/#{version}" + spark_url
+        BW::HTTP.get(complete_url, opts) do |response|
+          puts 'SparkMotion: [status code response.status_code] - response:'
+
+          response_body = response.body.to_str
+          puts response_body
+
+          block ||= lambda { |returned| puts("SparkMotion: [status code #{response.status_code}] - Result:\n #{returned.inspect}") }
+          block.call(response)
+        end
       }
 
-      opts={}
-      opts.merge!(options)
-      opts.merge!({:headers => headers})
-
-      # debug values
-      puts 'debug info saved in d1 and d2'
-
-      # https://<spark_endpoint>/<api version>/<spark resource>
-      complete_url = self.endpoint + "/#{version}" + spark_url
-      self.d2 = complete_url
-      BW::HTTP.get(complete_url, opts) do |response|
-        puts 'SparkMotion: [status code response.status_code] - response:'
-        puts response.body.to_str
-        self.d1 = BW::JSON.parse response.body.to_str
+      if self.authorized
+        puts 'SparkMotion: Authorization confirmed. Requesting...'
+        request.call
+      elsif !self.authorized
+        puts 'SparkMotion: Authorization required. Falling back to authorization before requesting...'
+        self.authorize(&request)
       end
     end
 
