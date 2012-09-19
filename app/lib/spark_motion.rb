@@ -40,7 +40,7 @@ module SparkMotion
       api_secret: "2d692kqxipv0o9yxovyp6s98b",
       api_user: nil,
       callback: "https://sparkplatform.com/oauth2/callback",
-      endpoint: "https://api.sparkapi.com",
+      endpoint: "https://developers.sparkapi.com", # change to https://api.developers.sparkapi.com for production
       auth_endpoint: "https://sparkplatform.com/oauth2",  # Ignored for Spark API Auth
       auth_grant_url: "https://api.sparkapi.com/v1/oauth2/grant",
       version: "v1",
@@ -97,13 +97,15 @@ module SparkMotion
         code: self.access_code # access code returned together with callback
       }
 
+      # http://sparkplatform.com/docs/api_services/read_first
+      # These headers are required when requesting from the API
+      # otherwise the request will return an error response.
       headers = {
         :"User-Agent" => "MotionSpark RubyMotion Sample App",
         :"X-SparkApi-User-Agent" => "MotionSpark RubyMotion Sample App"
       }
 
       BW::HTTP.post(auth_grant_url, payload: payload, headers: headers) do |response|
-        self.d1 = response
         response_body = BW::JSON.parse(response.body.to_str)
         if response.status_code == 200 # success
           # usual response:
@@ -131,9 +133,52 @@ module SparkMotion
       return
     end
 
-    def get # Future TODO: post, put
+    # Usage:
+    # client.get(url, options <Hash>)
+    # url<String>
+    #   - url without the Spark API endpoint e.g. '/listings', '/my/listings'
+    #   - endpoint can be configured in `configure` method
+    # options<Hash>
+    #   - options used for the query
+    #     :payload<String>   - data to pass to a POST, PUT, DELETE query. Additional parameters to
+    #     :headers<Hash>     - headers send with the request
+    #   - for more info in options, see BW::HTTP.get method in https://github.com/rubymotion/BubbleWrap/blob/master/motion/http.rb
+    #
+    # Example:
+    # if client = SparkMotion::OAuth2Client.new
+    #
+    # for GET request https://developers.sparkapi.com/v1/listings?_limit=1
+    # client.get '/listings', {:payload => {:"_limit" => 1}}
+    #
+    # for GET request https://developers.sparkapi.com/v1/listings?_limit=1&_filter=PropertyType%20Eq%20'A'
+    # client.get '/listings', {:payload => {:_limit => 1, :_filter => "PropertyType Eq 'A'"}}
+    def get spark_url, options={} # Future TODO: post, put
       # authorize if not authorized
-      # do get request via BW or Cocoa # check which is better
+      headers = {
+        :"User-Agent" => "MotionSpark RubyMotion Sample App",
+        :"X-SparkApi-User-Agent" => "MotionSpark RubyMotion Sample App",
+        :"Authorization" => "OAuth #{self.access_token}"
+      }
+
+      opts={}
+      opts.merge!(options)
+      opts.merge!({:headers => headers})
+
+      # debug values
+      puts 'debug info saved in d1 and d2'
+
+      # https://<spark_endpoint>/<api version>/<spark resource>
+      complete_url = self.endpoint + "/#{version}" + spark_url
+      self.d2 = complete_url
+      BW::HTTP.get(complete_url, opts) do |response|
+        puts 'SparkMotion: [status code response.status_code] - response:'
+        puts response.body.to_str
+        self.d1 = BW::JSON.parse response.body.to_str
+      end
+    end
+
+    def refresh_token
+
     end
   end
 end
