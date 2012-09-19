@@ -8,6 +8,12 @@ module SparkMotion
   VERSION = "0.1.0"
 
   class OAuth2Client
+    @@instances = []
+
+    def self.instances
+      @@instances ||= []
+    end
+
     VALID_OPTION_KEYS = [
       :api_key,
       :api_secret,
@@ -29,10 +35,11 @@ module SparkMotion
       :expires_in
     ]
 
-    DEBUGGER = [:d1, :d2]
-
     attr_accessor *VALID_OPTION_KEYS
+    attr_accessor :authorized
     attr_accessor *ACCESS_KEYS
+
+    DEBUGGER = [:d1, :d2]
     attr_accessor *DEBUGGER
 
     DEFAULT = {
@@ -57,6 +64,7 @@ module SparkMotion
 
     def initialize opts={}
       puts "#{self} initializing..."
+      @@instances << self
       (VALID_OPTION_KEYS + ACCESS_KEYS).each do |key|
         send("#{key.to_s}=", DEFAULT[key])
         puts "sent #{key.to_s} a default value"
@@ -115,6 +123,8 @@ module SparkMotion
           self.refresh_token = response_body["refresh_token"]
           self.expires_in = response_body["expires_in"]
           puts "SparkMotion: [status code 200] - Client is now authorized to make requests."
+
+          self.authorized = true
         else
           # usual response:
           # {"error_description":"The access grant you supplied is invalid","error":"invalid_grant"}
@@ -124,13 +134,9 @@ module SparkMotion
           # - try to authorize again? (without going through a loop)
           # - SparkMotion::Error module
           puts "SparkMotion: ERROR [status code #{response.status_code}] - #{response_body["error_description"]}"
+          self.authorized = false
         end
       end
-      # Also add extra setup here if needed
-
-      # NOTE:
-      # puts 'This line will run even before the post request ends'
-      return
     end
 
     # Usage:
