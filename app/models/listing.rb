@@ -14,20 +14,26 @@ class Listing
     }
   end
 
-  def self.all
+  def self.all &block
     # TODO: replace SparkMock.get '/listings' with a real http call to Spark API
     # - use oauth, private role
     # - get new token everytime a token expires (in 24 hours or 1 hour of inactivity)
-    response = BW::JSON.parse(SparkMock.get '/listings')
-    listings = []
-    if response["D"]["Success"]
-      response["D"]["Results"].each do |listing_data|
-        listing = Listing.new listing_data["StandardFields"]
-        listings << listing
-      end
-    end
+    client = SparkMotion::OAuth2Client.instances.first || SparkMotion::OAuth2Client.new
+    client.get_user_permission
+    client.get('/listings') do |response_body|
+      response = BW::JSON.parse(response_body)
 
-    listings
+      # response = BW::JSON.parse(SparkMock.get '/listings')
+      listings = []
+      if response["D"]["Success"]
+        response["D"]["Results"].each do |listing_data|
+          listing = Listing.new listing_data["StandardFields"]
+          listings << listing
+        end
+      end
+
+      block.call(listings)
+    end
   end
 
   def self.search text

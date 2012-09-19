@@ -1,6 +1,5 @@
 class ListingsController < UIViewController
   def viewDidLoad
-    @listings = Listing.all
     navigationItem.title = 'Listings'
 
     # search container for a search bar and a search button
@@ -14,9 +13,15 @@ class ListingsController < UIViewController
     @table_view = UITableView.alloc.initWithFrame(table_frame, style:UITableViewStylePlain)
     view.addSubview @table_view
 
+    @listings = []
     @search_container.delegate = self
     @table_view.delegate = self
     @table_view.dataSource = self
+
+    Listing.all do |listings|
+      @listings = listings
+      @table_view.reloadData
+    end
   end
 
   def shouldAutorotateToInterfaceOrientation(*)

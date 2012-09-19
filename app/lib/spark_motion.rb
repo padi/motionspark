@@ -89,7 +89,7 @@ module SparkMotion
       # app opens safari and waits for a callback?code=<access_code>
       # <access_code> is then assigned to client.access_code
 
-      self.access_code = "coufw6jtxsthsjquxl7zykwmq"
+      self.access_code = "j69pdxvpduuxbbr19g67uu9q"
       return # so that access_code will not be printed in output
     end
 
@@ -181,7 +181,7 @@ module SparkMotion
           puts response_body
 
           block ||= lambda { |returned| puts("SparkMotion: [status code #{response.status_code}] - Result:\n #{returned.inspect}") }
-          block.call(response)
+          block.call(response_body)
         end
       }
 
@@ -190,6 +190,7 @@ module SparkMotion
         request.call
       elsif !self.authorized
         puts 'SparkMotion: Authorization required. Falling back to authorization before requesting...'
+        # TODO: get user permission first before trying #authorize...
         self.authorize(&request)
       end
     end
