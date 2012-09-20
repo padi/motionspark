@@ -90,10 +90,20 @@ module SparkMotion
     end
 
     def get_user_permission
-      # app opens safari and waits for a callback?code=<authorization_code>
+      # app opens some UIWebView and waits for a callback?code=<authorization_code>
       # <authorization_code> is then assigned to client.authorization_code
 
-      self.authorization_code = "673nxhti7nop2ouknayfpmjl"
+      # TODO: how to get authorization code
+      #   - open up a uiwebview popup directed to oauth2 url + auth params
+      #   - 3 possible cases:
+      #     1. user is already logged in and has authorized app
+      #     2. user is already logged in, but has not authorized app
+      #     3. user is not logged in, and has not authorized app
+      #   - in all cases, the trigger for the popup to closes is when the url matches the client.callback
+      #     - before closing, get the authorization code from the provided callback_url/?code=<authorization_code>
+      #     - i.e. response.url.query
+
+      self.authorization_code = "b1mdbeg96tb7v055qiifsjuvt"
       return # so that authorization_code will not be printed in output
     end
 
