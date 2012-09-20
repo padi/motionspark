@@ -157,7 +157,7 @@ module SparkMotion
         BW::HTTP.get(complete_url, opts) do |response|
           puts "SparkMotion: [status code response.status_code] [#{spark_url}]"
 
-          response_body = response.body.to_str
+          response_body = response.body ? response.body.to_str : ""
           block ||= lambda { |returned| puts("SparkMotion: [status code #{response.status_code}] - Result:\n #{returned.inspect}") }
           block.call(response_body)
         end
@@ -214,7 +214,8 @@ module SparkMotion
 
     def auth_response_handler
       -> response, block {
-        response_body = BW::JSON.parse(response.body.to_str)
+        response_json = response.body ? response.body.to_str : ""
+        response_body = BW::JSON.parse(response_json)
         if response.status_code == 200 # success
           # usual response:
           # {"expires_in":86400,"refresh_token":"bkaj4hxnyrcp4jizv6epmrmin","access_token":"41924s8kb4ot8cy238doi8mbv"}"
