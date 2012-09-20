@@ -8,7 +8,6 @@ class Listing
   def initialize hash={}
     hash.each { |key, value|
       if PROPERTIES.member? key.to_sym
-        puts "assigning... #{key}: #{value} \n"
         self.send key.to_s + "=", value
       end
     }

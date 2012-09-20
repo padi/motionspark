@@ -14,6 +14,10 @@ module SparkMotion
       @@instances ||= []
     end
 
+    def self.first
+      self.instances.first
+    end
+
     VALID_OPTION_KEYS = [
       :api_key,
       :api_secret,
@@ -29,7 +33,7 @@ module SparkMotion
 
     # keys that are usually updated from Spark in order to access their API
     ACCESS_KEYS = [
-      :access_code,
+      :authorization_code,
       :access_token,
       :refresh_token,
       :expires_in
@@ -54,7 +58,7 @@ module SparkMotion
       user_agent: "Spark API RubyMotion Gem #{VERSION}",
       ssl: true,
 
-      access_code: nil,
+      authorization_code: nil,
       access_token: nil,
       refresh_token: nil,
       expires_in: 0
@@ -86,58 +90,34 @@ module SparkMotion
     end
 
     def get_user_permission
-      # app opens safari and waits for a callback?code=<access_code>
-      # <access_code> is then assigned to client.access_code
+      # app opens safari and waits for a callback?code=<authorization_code>
+      # <authorization_code> is then assigned to client.authorization_code
 
-      self.access_code = "j69pdxvpduuxbbr19g67uu9q"
-      return # so that access_code will not be printed in output
+      self.authorization_code = "673nxhti7nop2ouknayfpmjl"
+      return # so that authorization_code will not be printed in output
     end
 
     def authorize &block
-      # do a post request containing code..
-      # expect values to be assigned to ACCESS_KEYS attributes
+      callback = auth_response_handler
+      options = {payload: setup_payload, headers: setup_headers}
 
-      payload = {
-        client_id: self.api_key,
-        client_secret:  self.api_secret,
-        grant_type: "authorization_code",
-        redirect_uri: self.callback,
-        code: self.access_code # access code returned together with callback
-      }
+      block ||= -> { puts "SparkMotion: default callback."}
+      BW::HTTP.post(auth_grant_url, options) do |response|
+        callback.call response, block
+      end
+    end
 
-      # http://sparkplatform.com/docs/api_services/read_first
-      # These headers are required when requesting from the API
-      # otherwise the request will return an error response.
-      headers = {
-        :"User-Agent" => "MotionSpark RubyMotion Sample App",
-        :"X-SparkApi-User-Agent" => "MotionSpark RubyMotion Sample App"
-      }
+    def refresh &block
+      callback = auth_response_handler
+      options = {payload: setup_payload, headers: setup_headers}
 
-      BW::HTTP.post(auth_grant_url, payload: payload, headers: headers) do |response|
-        response_body = BW::JSON.parse(response.body.to_str)
-        if response.status_code == 200 # success
-          # usual response:
-          # {"expires_in":86400,"refresh_token":"bkaj4hxnyrcp4jizv6epmrmin","access_token":"41924s8kb4ot8cy238doi8mbv"}"
-
-          self.access_token = response_body["access_token"]
-          self.refresh_token = response_body["refresh_token"]
-          self.expires_in = response_body["expires_in"]
-          puts "SparkMotion: [status code 200] - Client is now authorized to make requests."
-
-          self.authorized = true
-
-          block.call if block && block.respond_to?(:call)
-        else
-          # usual response:
-          # {"error_description":"The access grant you supplied is invalid","error":"invalid_grant"}
-
-          # TODO: handle error in requests better.
-          # - there should be a fallback strategy
-          # - try to authorize again? (without going through a loop)
-          # - SparkMotion::Error module
-          puts "SparkMotion: ERROR [status code #{response.status_code}] - Authorization Unsuccessful - response body: #{response_body["error_description"]}"
-          self.authorized = false
-        end
+      block ||= -> { puts "SparkMotion: default callback."}
+      puts 'options: '
+      puts options
+      puts 'auth grant url: '
+      puts auth_grant_url
+      BW::HTTP.post(auth_grant_url, options) do |response|
+        callback.call response, block
       end
     end
 
@@ -175,11 +155,9 @@ module SparkMotion
         # https://<spark_endpoint>/<api version>/<spark resource>
         complete_url = self.endpoint + "/#{version}" + spark_url
         BW::HTTP.get(complete_url, opts) do |response|
-          puts 'SparkMotion: [status code response.status_code] - response:'
+          puts "SparkMotion: [status code response.status_code] [#{spark_url}]"
 
           response_body = response.body.to_str
-          puts response_body
-
           block ||= lambda { |returned| puts("SparkMotion: [status code #{response.status_code}] - Result:\n #{returned.inspect}") }
           block.call(response_body)
         end
@@ -195,8 +173,73 @@ module SparkMotion
       end
     end
 
-    def refresh_token
 
+    def previously_authorized?
+      # a string is truthy, but this should not return the refresh token
+      self.refresh_token ? true : false
     end
+
+    private
+
+    # payload common to `authorize` and `refresh`
+    def setup_payload
+      payload = {
+        client_id: self.api_key,
+        client_secret:  self.api_secret,
+        redirect_uri: self.callback,
+      }
+
+      if previously_authorized?
+        puts "SparkMotion: Previously authorized. Refreshing..."
+        payload[:refresh_token] = self.refresh_token
+        payload[:grant_type] = "refresh_token"
+      elsif self.authorization_code
+        puts "SparkMotion: Not previously authorized. Seeking authorization..."
+        payload[:code] = self.authorization_code
+        payload[:grant_type] = "authorization_code"
+      end
+
+      payload
+    end
+
+    def setup_headers
+      # http://sparkplatform.com/docs/api_services/read_first
+      # These headers are required when requesting from the API
+      # otherwise the request will return an error response.
+      headers = {
+        :"User-Agent" => "MotionSpark RubyMotion Sample App",
+        :"X-SparkApi-User-Agent" => "MotionSpark RubyMotion Sample App"
+      }
+    end
+
+    def auth_response_handler
+      -> response, block {
+        response_body = BW::JSON.parse(response.body.to_str)
+        if response.status_code == 200 # success
+          # usual response:
+          # {"expires_in":86400,"refresh_token":"bkaj4hxnyrcp4jizv6epmrmin","access_token":"41924s8kb4ot8cy238doi8mbv"}"
+
+          self.access_token = response_body["access_token"]
+          self.refresh_token = response_body["refresh_token"]
+          self.expires_in = response_body["expires_in"]
+          puts "SparkMotion: [status code 200] - Client is now authorized to make requests."
+
+          self.authorized = true
+
+          block.call if block && block.respond_to?(:call)
+        else
+          # usual response:
+          # {"error_description":"The access grant you supplied is invalid","error":"invalid_grant"}
+
+          # TODO: handle error in requests better.
+          # - there should be a fallback strategy
+          # - try to authorize again? (without going through a loop)
+          # - SparkMotion::Error module
+          puts "SparkMotion: ERROR [status code #{response.status_code}] - Authorization Unsuccessful - response body: #{response_body["error_description"]}"
+          self.authorized = false
+        end
+      }
+    end
+
   end
 end
