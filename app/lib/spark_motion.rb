@@ -73,7 +73,6 @@ module SparkMotion
       @@instances << self
       (VALID_OPTION_KEYS + ACCESS_KEYS).each do |key|
         send("#{key.to_s}=", DEFAULT[key])
-        puts "sent #{key.to_s} a default value"
       end
     end
 
@@ -95,7 +94,7 @@ module SparkMotion
       # app opens Mobile Safari and waits for a callback?code=<authorization_code>
       # <authorization_code> is then assigned to client.authorization_code
 
-      url = "https://sparkplatform.com/oauth2?response_type=code&client_id=yi5wkz6h79htk8lgqf9727iq&redirect_uri=https://sparkredirect.herokuapp.com"
+      url = "#{self.auth_endpoint}?response_type=code&client_id=#{self.api_key}&redirect_uri=#{self.callback}"
       UIApplication.sharedApplication.openURL NSURL.URLWithString url
 
       # AppDelegate#application:handleOpenURL will assign the new authorization code
