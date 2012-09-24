@@ -8,6 +8,8 @@ module SparkMotion
   VERSION = "0.1.0"
 
   class OAuth2Client
+    include BW::KVO
+
     @@instances = []
 
     def self.instances
@@ -89,14 +91,18 @@ module SparkMotion
       self
     end
 
-    def get_user_permission
+    def get_user_permission &block
       # app opens Mobile Safari and waits for a callback?code=<authorization_code>
       # <authorization_code> is then assigned to client.authorization_code
 
       url = "https://sparkplatform.com/oauth2?response_type=code&client_id=yi5wkz6h79htk8lgqf9727iq&redirect_uri=https://sparkredirect.herokuapp.com"
       UIApplication.sharedApplication.openURL NSURL.URLWithString url
 
-      # AppDelegate#application:handleOpenURL will get the authorization code
+      # AppDelegate#application:handleOpenURL will assign the new authorization code
+      # from this moment, `authorize` will trigger every time authorization_code changes
+      observe(self, "authorization_code") do |old_value, new_value|
+        self.authorize &block
+      end
 
       return # so that authorization_code will not be printed in output
     end
@@ -107,9 +113,6 @@ module SparkMotion
 
       block ||= -> { puts "SparkMotion: default callback."}
       BW::HTTP.post(auth_grant_url, options) do |response|
-        puts 'client.authorize has ended... now in callback'
-        puts 'response'
-        puts response.body.to_str
         callback.call response, block
       end
     end
@@ -164,7 +167,7 @@ module SparkMotion
       elsif !self.authorized
         puts 'SparkMotion: Authorization required. Falling back to authorization before requesting...'
         # TODO: get user permission first before trying #authorize...
-        self.authorize(&request)
+        self.get_user_permission(&request)
       end
     end
 
@@ -245,10 +248,6 @@ class AppDelegate
     query = url.query_to_hash
     client = SparkMotion::OAuth2Client.first
     client.authorization_code = query["code"]
-    puts '8'*88
-    puts query["code"]
-    puts client.authorization_code
-    client.authorization_code
     return
   end
 
