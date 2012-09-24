@@ -48,9 +48,9 @@ module SparkMotion
 
     DEFAULT = {
       api_key: "e8cd72745paowh67h1lygapif",
-      api_secret: "2d692kqxipv0o9yxovyp6s98b",
+      api_secret: "2d692kqxipv0o9yxovyp6s98bt",
       api_user: nil,
-      callback: "https://sparkplatform.com/oauth2/callback",
+      callback: "https://sparkredirect.herokuapp.com",
       endpoint: "https://developers.sparkapi.com", # change to https://api.developers.sparkapi.com for production
       auth_endpoint: "https://sparkplatform.com/oauth2",  # Ignored for Spark API Auth
       auth_grant_url: "https://api.sparkapi.com/v1/oauth2/grant",
@@ -90,20 +90,14 @@ module SparkMotion
     end
 
     def get_user_permission
-      # app opens some UIWebView and waits for a callback?code=<authorization_code>
+      # app opens Mobile Safari and waits for a callback?code=<authorization_code>
       # <authorization_code> is then assigned to client.authorization_code
 
-      # TODO: how to get authorization code
-      #   - open up a uiwebview popup directed to oauth2 url + auth params
-      #   - 3 possible cases:
-      #     1. user is already logged in and has authorized app
-      #     2. user is already logged in, but has not authorized app
-      #     3. user is not logged in, and has not authorized app
-      #   - in all cases, the trigger for the popup to closes is when the url matches the client.callback
-      #     - before closing, get the authorization code from the provided callback_url/?code=<authorization_code>
-      #     - i.e. response.url.query
+      url = "https://sparkplatform.com/oauth2?response_type=code&client_id=yi5wkz6h79htk8lgqf9727iq&redirect_uri=https://sparkredirect.herokuapp.com"
+      UIApplication.sharedApplication.openURL NSURL.URLWithString url
 
-      self.authorization_code = "b1mdbeg96tb7v055qiifsjuvt"
+      # AppDelegate#application:handleOpenURL will get the authorization code
+
       return # so that authorization_code will not be printed in output
     end
 
@@ -113,23 +107,14 @@ module SparkMotion
 
       block ||= -> { puts "SparkMotion: default callback."}
       BW::HTTP.post(auth_grant_url, options) do |response|
+        puts 'client.authorize has ended... now in callback'
+        puts 'response'
+        puts response.body.to_str
         callback.call response, block
       end
     end
 
-    def refresh &block
-      callback = auth_response_handler
-      options = {payload: setup_payload, headers: setup_headers}
-
-      block ||= -> { puts "SparkMotion: default callback."}
-      puts 'options: '
-      puts options
-      puts 'auth grant url: '
-      puts auth_grant_url
-      BW::HTTP.post(auth_grant_url, options) do |response|
-        callback.call response, block
-      end
-    end
+    alias_method :refresh, :authorize
 
     # Usage:
     # client.get(url, options <Hash>)
@@ -186,7 +171,7 @@ module SparkMotion
 
     def previously_authorized?
       # a string is truthy, but this should not return the refresh token
-      self.refresh_token ? true : false
+      self.refresh_token && self.authorized ? true : false
     end
 
     private
@@ -223,7 +208,7 @@ module SparkMotion
     end
 
     def auth_response_handler
-      -> response, block {
+      lambda { |response, block|
         response_json = response.body ? response.body.to_str : ""
         response_body = BW::JSON.parse(response_json)
         if response.status_code == 200 # success
@@ -251,6 +236,33 @@ module SparkMotion
         end
       }
     end
+  end
+end
 
+# handle url from safari to get authorization_code during OAuth2Client#get_user_permission
+class AppDelegate
+  def application(app, handleOpenURL:url)
+    query = url.query_to_hash
+    client = SparkMotion::OAuth2Client.first
+    client.authorization_code = query["code"]
+    puts '8'*88
+    puts query["code"]
+    puts client.authorization_code
+    client.authorization_code
+    return
+  end
+
+  private
+
+  def queries_from_url url #Takes NSURL
+    query_arr = url.query.split(/&|=/)
+    query = Hash[*query_arr] # turns [key1,value1,key2,value2] to {key1=>value1, key2=>value2}
+  end
+end
+
+class NSURL
+  def query_to_hash
+    query_arr = self.query.split(/&|=/)
+    query = Hash[*query_arr] # turns [key1,value1,key2,value2] to {key1=>value1, key2=>value2}
   end
 end

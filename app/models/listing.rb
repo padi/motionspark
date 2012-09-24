@@ -18,7 +18,8 @@ class Listing
     # - use oauth, private role
     # - get new token everytime a token expires (in 24 hours or 1 hour of inactivity)
     client = SparkMotion::OAuth2Client.instances.first || SparkMotion::OAuth2Client.new
-    client.get_user_permission
+    # client.get_user_permission
+    client.authorization_code = "dqarek2fmntxa630te6pptstt"
     client.get('/listings') do |response_body|
       response = BW::JSON.parse(response_body)
 
