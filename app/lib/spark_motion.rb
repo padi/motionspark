@@ -249,13 +249,6 @@ class AppDelegate
     client.authorization_code = query["code"]
     return
   end
-
-  private
-
-  def queries_from_url url #Takes NSURL
-    query_arr = url.query.split(/&|=/)
-    query = Hash[*query_arr] # turns [key1,value1,key2,value2] to {key1=>value1, key2=>value2}
-  end
 end
 
 class NSURL
