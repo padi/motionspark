@@ -11,6 +11,7 @@ module SparkMotion
     include BW::KVO
 
     @@instances = []
+    @observed = false
 
     def self.instances
       @@instances ||= []
@@ -98,9 +99,11 @@ module SparkMotion
       UIApplication.sharedApplication.openURL NSURL.URLWithString url
 
       # AppDelegate#application:handleOpenURL will assign the new authorization code
-      # from this moment, `authorize` will trigger every time authorization_code changes
-      observe(self, "authorization_code") do |old_value, new_value|
-        self.authorize &block
+      unless @observed
+        observe(self, "authorization_code") do |old_value, new_value|
+          self.authorize &block
+          @observed = true
+        end
       end
 
       return # so that authorization_code will not be printed in output
@@ -152,7 +155,7 @@ module SparkMotion
         # https://<spark_endpoint>/<api version>/<spark resource>
         complete_url = self.endpoint + "/#{version}" + spark_url
         BW::HTTP.get(complete_url, opts) do |response|
-          puts "SparkMotion: [status code response.status_code] [#{spark_url}]"
+          puts "SparkMotion: [status code #{response.status_code}] [#{spark_url}]"
 
           response_body = response.body ? response.body.to_str : ""
           block ||= lambda { |returned| puts("SparkMotion: [status code #{response.status_code}] - Result:\n #{returned.inspect}") }
@@ -160,18 +163,22 @@ module SparkMotion
         end
       }
 
-      if self.authorized
+      if authorized?
         puts 'SparkMotion: Authorization confirmed. Requesting...'
         request.call
-      elsif !self.authorized
+      elsif !authorized?
         puts 'SparkMotion: Authorization required. Falling back to authorization before requesting...'
         # TODO: get user permission first before trying #authorize...
         self.get_user_permission(&request)
       end
     end
 
+    def logout
+      self.expires_in = 0
+      self.refresh_token = self.access_token = nil
+    end
 
-    def previously_authorized?
+    def authorized?
       # a string is truthy, but this should not return the refresh token
       self.refresh_token && self.authorized ? true : false
     end
@@ -186,7 +193,7 @@ module SparkMotion
         redirect_uri: self.callback,
       }
 
-      if previously_authorized?
+      if authorized?
         puts "SparkMotion: Previously authorized. Refreshing..."
         payload[:refresh_token] = self.refresh_token
         payload[:grant_type] = "refresh_token"
