@@ -9,9 +9,11 @@ module SparkMotion
 
   class OAuth2Client
     include BW::KVO
+    include BW::HTTP
 
     @@instances = []
     @observed = false
+    @request_retries = 0
 
     def self.instances
       @@instances ||= []
@@ -50,8 +52,8 @@ module SparkMotion
     attr_accessor *DEBUGGER
 
     DEFAULT = {
-      api_key: "e8cd72745paowh67h1lygapif",
-      api_secret: "2d692kqxipv0o9yxovyp6s98bt",
+      api_key: "yi5wkz6h79htk8lgqf9727iq",
+      api_secret: "jcy8cydfbwgvfe30v5nk70or",
       api_user: nil,
       callback: "https://sparkredirect.herokuapp.com",
       endpoint: "https://developers.sparkapi.com", # change to https://api.developers.sparkapi.com for production
@@ -115,6 +117,10 @@ module SparkMotion
 
       block ||= -> { puts "SparkMotion: default callback."}
       BW::HTTP.post(auth_grant_url, options) do |response|
+        puts 'response: '
+        puts response
+        puts 'callback:'
+        puts callback
         callback.call response, block
       end
     end
@@ -141,25 +147,46 @@ module SparkMotion
     # for GET request https://developers.sparkapi.com/v1/listings?_limit=1&_filter=PropertyType%20Eq%20'A'
     # client.get '/listings', {:payload => {:_limit => 1, :_filter => "PropertyType Eq 'A'"}}
     def get(spark_url, options={}, &block) # Future TODO: post, put
-      request = lambda {
-        headers = {
+      headers = {
           :"User-Agent" => "MotionSpark RubyMotion Sample App",
           :"X-SparkApi-User-Agent" => "MotionSpark RubyMotion Sample App",
           :"Authorization" => "OAuth #{self.access_token}"
-        }
+      }
+      opts={}
+      opts.merge!(options)
+      opts.merge!({:headers => headers})
 
-        opts={}
-        opts.merge!(options)
-        opts.merge!({:headers => headers})
+      complete_url = self.endpoint + "/#{version}" + spark_url
+
+      request = lambda {
 
         # https://<spark_endpoint>/<api version>/<spark resource>
-        complete_url = self.endpoint + "/#{version}" + spark_url
+        puts 'first BW get request....'
         BW::HTTP.get(complete_url, opts) do |response|
-          puts "SparkMotion: [status code #{response.status_code}] [#{spark_url}]"
+          puts "sparkmotion: [status code #{response.status_code}] [#{spark_url}]"
 
-          response_body = response.body ? response.body.to_str : ""
-          block ||= lambda { |returned| puts("SparkMotion: [status code #{response.status_code}] - Result:\n #{returned.inspect}") }
-          block.call(response_body)
+          # response_body = response.body ? response.body.to_str : ""
+          # block ||= lambda { |returned| puts("SparkMotion: [status code #{response.status_code}] - Result:\n #{returned.inspect}") }
+          # if response.status_code == 200
+          #   @request_retries = 0
+          #   block.call(response_body)
+          # elsif @request_retries > 0
+          #   puts "SparkMotion: retried authorization, but failed."
+          # elsif @request_retries == 0
+          #   puts("SparkMotion: [status code #{response.status_code}] - Now retrying to establish authorization...")
+
+            # self.authorize do
+              puts 'adding 1 to request entries...'
+              # BW::HTTP.get(complete_url, opts) do |resp|
+              BW::HTTP.get(complete_url, opts) do |resp|
+                puts 'inside the inner block...'
+                # puts "SparkMotion: [status code #{response.status_code}] [#{spark_url}]"
+                # response_body = response.body ? response.body.to_str : ""
+                # block.call(response_body)
+              end
+              puts 'end...'
+            # end
+          # end
         end
       }
 
