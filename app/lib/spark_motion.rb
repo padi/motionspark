@@ -142,6 +142,9 @@ module SparkMotion
     # for GET request https://developers.sparkapi.com/v1/listings?_limit=1&_filter=PropertyType%20Eq%20'A'
     # client.get '/listings', {:payload => {:_limit => 1, :_filter => "PropertyType Eq 'A'"}}
     def get(spark_url, options={}, &block) # Future TODO: post, put
+      # https://<spark_endpoint>/<api version>/<spark resource>
+      complete_url = self.endpoint + "/#{version}" + spark_url
+
       headers = {
         :"User-Agent" => "MotionSpark RubyMotion Sample App",
         :"X-SparkApi-User-Agent" => "MotionSpark RubyMotion Sample App",
@@ -152,24 +155,22 @@ module SparkMotion
       opts.merge!(options)
       opts.merge!({:headers => headers})
 
-      # https://<spark_endpoint>/<api version>/<spark resource>
-      complete_url = self.endpoint + "/#{version}" + spark_url
-
+      block ||= lambda { |returned|
+        puts("SparkMotion: default callback")
+      }
 
       request = lambda {
         BW::HTTP.get(complete_url, opts) do |response|
           puts "SparkMotion: [status code #{response.status_code}] [#{spark_url}]"
-          block ||= lambda { |returned| puts("SparkMotion: [status code #{response.status_code}] - Result:\n #{returned.inspect}") }
+
           response_body = response.body ? response.body.to_str : ""
 
           if response.status_code == 200
-            puts 'Successful request. Now calling'
+            puts 'SparkMotion: Successful request.'
 
             @@request_retries = 0
             block.call(response_body)
           elsif @@request_retries > 0
-            puts 'more than 0 retries. .....................'
-
             puts "SparkMotion: retried authorization, but failed."
           elsif @@request_retries == 0
             puts("SparkMotion: [status code #{response.status_code}] - Now retrying to establish authorization...")
@@ -179,7 +180,6 @@ module SparkMotion
 
               @@request_retries += 1
               self.get(spark_url, opts, &block)
-              puts 'end............'
             end
           end
         end
