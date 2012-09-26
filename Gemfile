@@ -1,4 +1,4 @@
 source :rubygems
-gem 'bubble-wrap', '~> 1.0.0', :require => ['bubble-wrap/core', 'bubble-wrap/http']
+gem 'bubble-wrap', '~> 1.1.3', :require => ['bubble-wrap/core', 'bubble-wrap/http'], :git => 'https://github.com/rubymotion/BubbleWrap.git'
 gem 'teacup'
 gem 'rake'

@@ -12,6 +12,7 @@ module SparkMotion
 
     @@instances = []
     @observed = false
+    @@request_retries = 0
 
     def self.instances
       @@instances ||= []
@@ -141,30 +142,51 @@ module SparkMotion
     # for GET request https://developers.sparkapi.com/v1/listings?_limit=1&_filter=PropertyType%20Eq%20'A'
     # client.get '/listings', {:payload => {:_limit => 1, :_filter => "PropertyType Eq 'A'"}}
     def get(spark_url, options={}, &block) # Future TODO: post, put
+      # https://<spark_endpoint>/<api version>/<spark resource>
+      complete_url = self.endpoint + "/#{version}" + spark_url
+
+      headers = {
+        :"User-Agent" => "MotionSpark RubyMotion Sample App",
+        :"X-SparkApi-User-Agent" => "MotionSpark RubyMotion Sample App",
+        :"Authorization" => "OAuth #{self.access_token}"
+      }
+
+      opts={}
+      opts.merge!(options)
+      opts.merge!({:headers => headers})
+
+      block ||= lambda { |returned|
+        puts("SparkMotion: default callback")
+      }
+
       request = lambda {
-        headers = {
-          :"User-Agent" => "MotionSpark RubyMotion Sample App",
-          :"X-SparkApi-User-Agent" => "MotionSpark RubyMotion Sample App",
-          :"Authorization" => "OAuth #{self.access_token}"
-        }
-
-        opts={}
-        opts.merge!(options)
-        opts.merge!({:headers => headers})
-
-        # https://<spark_endpoint>/<api version>/<spark resource>
-        complete_url = self.endpoint + "/#{version}" + spark_url
         BW::HTTP.get(complete_url, opts) do |response|
           puts "SparkMotion: [status code #{response.status_code}] [#{spark_url}]"
 
           response_body = response.body ? response.body.to_str : ""
-          block ||= lambda { |returned| puts("SparkMotion: [status code #{response.status_code}] - Result:\n #{returned.inspect}") }
-          block.call(response_body)
+
+          if response.status_code == 200
+            puts 'SparkMotion: Successful request.'
+
+            @@request_retries = 0
+            block.call(response_body)
+          elsif @@request_retries > 0
+            puts "SparkMotion: retried authorization, but failed."
+          elsif @@request_retries == 0
+            puts("SparkMotion: [status code #{response.status_code}] - Now retrying to establish authorization...")
+
+            self.authorize do
+              puts "SparkMotion: Will now retry the request [#{spark_url}]"
+
+              @@request_retries += 1
+              self.get(spark_url, opts, &block)
+            end
+          end
         end
       }
 
       if authorized?
-        puts 'SparkMotion: Authorization confirmed. Requesting...'
+        puts "SparkMotion: Requesting [#{spark_url}]"
         request.call
       elsif !authorized?
         puts 'SparkMotion: Authorization required. Falling back to authorization before requesting...'
@@ -194,11 +216,11 @@ module SparkMotion
       }
 
       if authorized?
-        puts "SparkMotion: Previously authorized. Refreshing..."
+        puts "SparkMotion: Previously authorized. Refreshing tokens..."
         payload[:refresh_token] = self.refresh_token
         payload[:grant_type] = "refresh_token"
       elsif self.authorization_code
-        puts "SparkMotion: Not previously authorized. Seeking authorization..."
+        puts "SparkMotion: Seeking authorization..."
         payload[:code] = self.authorization_code
         payload[:grant_type] = "authorization_code"
       end
